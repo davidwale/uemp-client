@@ -3,7 +3,7 @@
 React single-page app for UEMP. It provides role-based dashboards for Students, Lecturers, Department Admins
 and the Super Admin.
 
-**Live app:** _add URL after deployment_  ·  **API repo (main README, docs, demo accounts):** [uemp-api](https://github.com/davidwale/uemp-api)
+**Live app:** https://uemp-client.vercel.app  ·  **API repo (main README, docs, demo accounts):** [uemp-api](https://github.com/davidwale/uemp-api)
 **Stack:** React 19 · TypeScript · Tailwind CSS v4 · Vite · React Router 7 · TanStack Query · React Hook Form + Zod
 
 ## Demo accounts
@@ -47,20 +47,22 @@ to one origin and the API's `HttpOnly` session cookie works without cross-site c
 |---|---|---|
 | `VITE_API_URL` | _(empty)_ | Leave empty when `/api` is served from the same origin, via the dev proxy or a host rewrite. Set it only to call the API on another origin directly. |
 
-## Deployment
+## Deployment (Vercel)
 
-Build with `npm ci && npm run build` and serve the `dist/` folder from any static host (e.g. Netlify, Vercel,
-Cloudflare Pages, Nginx). Configure the host with:
+1. Import this repository in Vercel. `vercel.json` already sets the build (`npm run build`, output `dist/`).
+2. The `/api/:path*` rewrite in `vercel.json` points at the API (`https://uemp-api-2d85.onrender.com`). Change it if the API moves.
+3. On the API, set `CORS_ORIGINS` to this site's Vercel URL (`https://uemp-client.vercel.app`).
 
-- **A rewrite of `/api/*` to the API**, e.g. `/api/*` → `https://<your-api-host>/api/*`. UI and API then
-  share one origin in the browser, so the API's session cookie works as-is.
-- **A fallback of every other path to `index.html`**, for client-side routing.
-- **Security headers:** a Content-Security-Policy (`default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
-  img-src 'self' data:; frame-ancestors 'none'`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
-  and long-lived caching for the hashed files in `/assets`.
+`vercel.json` configures:
+- **A proxy of `/api/*` to the API.** In the browser, the UI and the API share one origin, so the API's
+  `HttpOnly`, `SameSite=Lax` session cookie works as a normal first-party cookie. No cross-site cookie setup is
+  needed, and browsers that block third-party cookies (such as Safari) don't break sign-in.
+- **A fallback of every other path to `index.html`**, so deep links like `/admin/results` load the app.
+  Vercel serves real files (JS, CSS, images) before applying rewrites.
+- **Security headers** (Content-Security-Policy, `X-Frame-Options`, `nosniff`, referrer policy) and long-lived
+  caching for the hashed files in `/assets`.
 
-If the host can't proxy, set `VITE_API_URL` to the API's URL at build time. The API's session cookie then has to be
-configured for cross-site use.
+`VITE_API_URL` stays empty on Vercel, because requests go through the proxy.
 
 ## Project structure
 
