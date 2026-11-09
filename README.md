@@ -47,15 +47,20 @@ to one origin and the API's `HttpOnly` session cookie works without cross-site c
 |---|---|---|
 | `VITE_API_URL` | _(empty)_ | Leave empty when `/api` is served from the same origin, via the dev proxy or a host rewrite. Set it only to call the API on another origin directly. |
 
-## Deployment (Render)
+## Deployment
 
-Render → **New → Blueprint** → select this repo. `render.yaml` creates the `uemp-web` static site with:
-- a rewrite of `/api/*` to the API service, so UI and API share one origin in the browser,
-- a fallback of every other path to `index.html` for client-side routing,
-- security headers (Content-Security-Policy, `X-Frame-Options`, `nosniff`, referrer policy) and long-lived
-  caching for hashed assets.
+Build with `npm ci && npm run build` and serve the `dist/` folder from any static host (e.g. Netlify, Vercel,
+Cloudflare Pages, Nginx). Configure the host with:
 
-Deploy the API first, and update the rewrite destination if its URL differs from `uemp-api.onrender.com`.
+- **A rewrite of `/api/*` to the API**, e.g. `/api/*` → `https://<your-api-host>/api/*`. UI and API then
+  share one origin in the browser, so the API's session cookie works as-is.
+- **A fallback of every other path to `index.html`**, for client-side routing.
+- **Security headers:** a Content-Security-Policy (`default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
+  img-src 'self' data:; frame-ancestors 'none'`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
+  and long-lived caching for the hashed files in `/assets`.
+
+If the host can't proxy, set `VITE_API_URL` to the API's URL at build time. The API's session cookie then has to be
+configured for cross-site use.
 
 ## Project structure
 
