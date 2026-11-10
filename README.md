@@ -3,8 +3,14 @@
 React single-page app for UEMP. It provides role-based dashboards for Students, Lecturers, Department Admins
 and the Super Admin.
 
-**Live app:** https://uemp-client.vercel.app  ·  **API repo (main README, docs, demo accounts):** [uemp-api](https://github.com/davidwale/uemp-api)
 **Stack:** React 19 · TypeScript · Tailwind CSS v4 · Vite · React Router 7 · TanStack Query · React Hook Form + Zod
+
+| | |
+|---|---|
+| **Live app** (this repo, hosted on Vercel) | https://uemp-client.vercel.app |
+| **API repo** (hosted on Render): main README, technical docs, demo data | [davidwale/uemp-api](https://github.com/davidwale/uemp-api) |
+
+UEMP is made of **two separate applications, each in its own repository**: this web client and the REST API.
 
 ## Demo accounts
 
@@ -21,7 +27,7 @@ See the API repository's README for what to try with each account.
 
 ## Running locally
 
-Start the API first (see the [uemp-api](https://github.com/davidwale/uemp-api) README), then:
+**Prerequisites:** Node.js ≥ 20.11. Start the API first (see the [uemp-api](https://github.com/davidwale/uemp-api) README), then:
 
 ```bash
 npm install
@@ -50,8 +56,10 @@ to one origin and the API's `HttpOnly` session cookie works without cross-site c
 ## Deployment (Vercel)
 
 1. Import this repository in Vercel. `vercel.json` already sets the build (`npm run build`, output `dist/`).
-2. The `/api/:path*` rewrite in `vercel.json` points at the API (`https://uemp-api-2d85.onrender.com`). Change it if the API moves.
-3. On the API, set `CORS_ORIGINS` to this site's Vercel URL (`https://uemp-client.vercel.app`).
+2. The `/api/:path*` rewrite in `vercel.json` points at the API on Render (`https://uemp-api-2d85.onrender.com`).
+   Change it if the API moves.
+3. On the API, `CORS_ORIGINS` must be set to this site's URL (`https://uemp-client.vercel.app`), or every sign-in
+   is rejected with "Cross-origin request rejected".
 
 `vercel.json` configures:
 - **A proxy of `/api/*` to the API.** In the browser, the UI and the API share one origin, so the API's
@@ -79,7 +87,9 @@ src/
 │  └─ shared/             result sheet, profile, shared queries
 ├─ hooks/                 auth/session hooks, debounce
 ├─ lib/                   API client, query client, utilities
+├─ test/                  test setup (Testing Library matchers, cleanup)
 └─ types/                 API response types
+vercel.json               Vercel config: /api proxy, SPA fallback, security headers
 ```
 
 **Key decisions**
